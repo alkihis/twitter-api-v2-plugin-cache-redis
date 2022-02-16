@@ -10,7 +10,7 @@ export interface ITwitterApiCachePluginRedisOptions {
 }
 
 export class TwitterApiCachePluginRedis extends TwitterApiCachePluginCore {
-  constructor(protected client: RedisClientType, protected options: ITwitterApiCachePluginRedisOptions = {}) {
+  constructor(protected client: RedisClientType<any, any>, protected options: ITwitterApiCachePluginRedisOptions = {}) {
     super();
   }
 
