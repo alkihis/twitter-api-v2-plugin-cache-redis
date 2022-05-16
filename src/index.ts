@@ -14,16 +14,26 @@ export class TwitterApiCachePluginRedis extends TwitterApiCachePluginCore {
     super();
   }
 
+  protected async maybeWaitForClientConnect() {
+    if (this.client.isOpen) {
+      return;
+    }
+
+    await this.client.connect();
+  }
+
   protected getKeyPrefix() {
     return 'twitter-api-v2-cache-';
   }
 
   protected async hasKey(key: string) {
+    await this.maybeWaitForClientConnect();
     const data = Number(await this.client.exists(key));
     return data > 0;
   }
 
   protected async getKey(key: string) {
+    await this.maybeWaitForClientConnect();
     const data = await this.client.get(key) as string | undefined;
     if (data) {
       return JSON.parse(data) as TwitterResponse<any>;
@@ -34,6 +44,7 @@ export class TwitterApiCachePluginRedis extends TwitterApiCachePluginCore {
     const ttl = this.getTTLForResponse(response);
 
     if (ttl !== null) {
+      await this.maybeWaitForClientConnect();
       await this.client.set(key, JSON.stringify(response), { PX: ttl > 0 ? ttl : undefined });
     }
   }
